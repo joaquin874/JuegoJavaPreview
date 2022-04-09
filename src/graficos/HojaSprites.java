@@ -23,6 +23,5 @@ public class HojaSprite {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }
