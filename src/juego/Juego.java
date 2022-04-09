@@ -1,4 +1,4 @@
-package Juego;
+package juego;
 
 import javax.swing.JFrame;
 
@@ -17,8 +17,11 @@ public class Juego extends Canvas implements Runnable{
     //VOLATILE HACE QUE NO SE CUELGUE EL PROGRAMA DE LA NADA AL USAR enFuncionamiento EN MAS DE 1 HILO
     //EN RESUMEN HACE QUE NO PUEDA UTILIZAR DE FORMA SIMULTANEA POR LOS 2 THREADS
     private static volatile boolean  enFuncionamiento = false;
-    private static final String NOMBRE = "Juego";
 
+    private static final String NOMBRE = "juego";
+
+    private static int aps = 0;
+    private static int fps = 0;
     private static JFrame ventana;
     private static Thread thread;
 
@@ -45,7 +48,7 @@ public class Juego extends Canvas implements Runnable{
 
     private synchronized void iniciar(){
         enFuncionamiento = true;
-        thread = new Thread(this, "Graficos");
+        thread = new Thread(this, "graficos");
         thread.start();
     }
 
@@ -58,10 +61,47 @@ public class Juego extends Canvas implements Runnable{
             e.printStackTrace();
         }
     }
+
+    private void actualizar(){
+        aps++;
+    }
+
+    private void mostrar(){
+        fps++;
+    }
     @Override
     public void run() {
-        while(enFuncionamiento){
+        //TEMPORIZADOR PARA LOS FPS
+        final int NS_POR_SEGUNDO = 1000000000;
+        final byte APS_OBJETIVO = 60;
+        final double NS_POR_ACTUALIZACION = NS_POR_SEGUNDO/APS_OBJETIVO;
 
+        long referenciaActualizacion = System.nanoTime();
+        long referenciaContador = System.nanoTime();
+
+        double tiempoTranscurrido;
+        double delta = 0;
+
+        while(enFuncionamiento){
+            final long incioBucle = System.nanoTime();
+
+            tiempoTranscurrido = incioBucle - referenciaActualizacion;
+            referenciaActualizacion = incioBucle;
+
+            delta += tiempoTranscurrido/NS_POR_ACTUALIZACION;
+
+            while (delta >= 1){
+                actualizar();
+                delta--;
+            }
+            mostrar();
+
+            if (System.nanoTime() - referenciaContador > NS_POR_SEGUNDO){
+                ventana.setTitle(NOMBRE + " || APS: " + aps + " || FPS: " + fps);
+                aps = 0;
+                fps = 0;
+                referenciaContador = System.nanoTime();
+            }
         }
 //        System.out.printf("El thread 2 se esta ejecutando con exito");
     }
