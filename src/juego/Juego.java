@@ -1,5 +1,7 @@
 package juego;
 
+import control.Teclado;
+
 import javax.swing.JFrame;
 
 import java.awt.Canvas;
@@ -22,11 +24,16 @@ public class Juego extends Canvas implements Runnable{
 
     private static int aps = 0;
     private static int fps = 0;
+
     private static JFrame ventana;
     private static Thread thread;
+    private static Teclado teclado;
 
     public Juego() {
         setPreferredSize(new Dimension(ANCHO, ALTO));
+
+        teclado = new Teclado();
+        addKeyListener(teclado);
 
         ventana = new JFrame(NOMBRE);
         //PARA QUE SE CIERRE LA VENTANA CUANDO HACEMOS CLICK EN LA CRUZ
@@ -63,6 +70,20 @@ public class Juego extends Canvas implements Runnable{
     }
 
     private void actualizar(){
+        teclado.actualizar();
+
+        if (teclado.arriba){
+            System.out.println("ARRIBA");
+        }
+        if (teclado.abajo){
+            System.out.println("ABAJO");
+        }
+        if (teclado.izquierda){
+            System.out.println("IZQUIERDA");
+        }
+        if (teclado.derecha){
+            System.out.println("DERECHA");
+        }
         aps++;
     }
 
@@ -81,6 +102,8 @@ public class Juego extends Canvas implements Runnable{
 
         double tiempoTranscurrido;
         double delta = 0;
+
+        requestFocus();           //PERMITE QUE RECONOZCA EL APRETADO DE UNA TECLA POR MAS QUE ESTE FUERA DE LA PANTALLA
 
         while(enFuncionamiento){
             final long incioBucle = System.nanoTime();
